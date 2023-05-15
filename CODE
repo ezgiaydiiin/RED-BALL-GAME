@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Kırmızı Top Oyunu</title>
+    <style>
+      canvas {
+        border: 4px solid blue;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <canvas id="myCanvas" width="800" height="600"></canvas>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+        var ballRadius = 10;
+        var x = canvas.width/2;
+        var y = canvas.height-30;
+        var dx = 2;
+        var dy = -2;
+        var rightPressed = false;
+        var leftPressed = false;
+        var upPressed = false;
+        var downPressed = false;
+        var engelSayisi = 0;
+        var engeller = [];
+        var intervalObstacle;
+        var intervalObstaclePosition;
+        var intervalWin;
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function engelCiz() {
+            for (var i = 0; i < engeller.length; i++) {
+            ctx.beginPath();
+            ctx.arc(engeller[i].x, engeller[i].y, engeller[i].radius, 0, Math.PI*2);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+            }
+        }
+
+        function engelYarat() {
+            var radius = 15;
+            var x = Math.random() * (canvas.width - radius*2) + radius;
+            var y = Math.random() * (canvas.height/2 - radius*2) + radius;
+            engeller.push({x: x, y: y, radius: radius, dx: 1, dy: 1});
+            engelSayisi++;
+        }
+
+        function engellerHareket() {
+            for (var i = 0; i < engeller.length; i++) {
+            if (engeller[i].x + engeller[i].radius > canvas.width || engeller[i].x - engeller[i].radius < 0) {
+                engeller[i].dx = -engeller[i].dx;
+            }
+            if (engeller[i].y + engeller[i].radius > canvas.height/2 || engeller[i].y - engeller[i].radius < 0) {
+                engeller[i].dy = -engeller[i].dy;
+            }
+            engeller[i].x += engeller[i].dx;
+            engeller[i].y += engeller[i].dy;
+            }
+        }
+
+        function keyDownHandler(e) {
+            if(e.keyCode == 39) {
+                rightPressed = true;
+            }
+            else if(e.keyCode == 37) {
+                leftPressed = true;
+            }
+            else if(e.keyCode == 38) {
+                upPressed = true;
+            }
+            else if(e.keyCode == 40) {
+                downPressed = true;
+            }
+            else if(e.keyCode == 38) {
+                upPressed = true;
+                dy = -2;
+            }
+            else if(e.keyCode == 38) {
+                upPressed = false;
+                dy = 2;
+            }
+            else if (e.keyCode == 40) {
+                downPressed = true;
+            }
+
+
+
+        }
+
+        function keyUpHandler(e) {
+            if(e.keyCode == 39) {
+                rightPressed = false;
+            }
+            else if(e.keyCode == 37) {
+            leftPressed = false;
+            }
+            else if(e.keyCode == 38) {
+            upPressed = false;
+            }
+            else if(e.keyCode == 40) {
+            downPressed = false;
+            }
+
+        }
+
+        function collisionDetection() {
+            for (var i = 0; i < engeller.length; i++) {
+                var engel = engeller[i];
+                var uzaklık = Math.sqrt(Math.pow(engel.x - x, 2) + Math.pow(engel.y - y, 2));
+                if (uzaklık < engel.radius + ballRadius) {
+                    clearInterval(intervalObstacle);
+                    clearInterval(intervalObstaclePosition);
+                    clearInterval(intervalWin);
+                    alert("OYUNU KAYBETTINIZ");
+                    return;
+                }
+            }
+        }
+
+        function checkWin() {
+            if (engelSayisi >= 4 && engelSayisi < 8) {
+            clearInterval(intervalObstacle);
+            clearInterval(intervalObstaclePosition);
+            clearInterval(intervalWin);
+            alert("KAZANDINIZ!!");
+            
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            engelCiz();
+            collisionDetection();
+
+            if(rightPressed && x < canvas.width-ballRadius) {
+            x += dx;
+            }
+            else if(leftPressed && x > ballRadius) {
+            x -= dx;
+            }
+            else if(upPressed && y > ballRadius) {
+            y -= dy;
+            }
+            else if(downPressed && y < canvas.height-ballRadius) {
+            y += dy;
+            }
+            if (downPressed && y < canvas.height - ballRadius) {
+                y += dy;
+            }
+
+
+            engellerHareket();
+            checkWin();
+        }
+
+        intervalObstacle = setInterval(engelYarat, 10000);
+        intervalObstaclePosition = setInterval(engellerHareket, 5000);
+        intervalWin = setInterval(checkWin, 1000);
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+        setInterval(draw, 10);
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            engelCiz();
+            collisionDetection();
+
+            if(rightPressed && x < canvas.width-ballRadius) {
+                x += dx;
+            }
+            else if(leftPressed && x > ballRadius) {
+                x -= dx;
+            }
+
+            // Sınırları kontrol et
+            if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+                dx = -dx;
+                rightPressed = !rightPressed;
+                leftPressed = !leftPressed;
+            }
+
+            if(upPressed && y > ballRadius) {
+                y -= dy;
+            }
+            else if(downPressed && y < canvas.height-ballRadius) {
+                y += dy;
+            }
+
+            // Sınırları kontrol et
+            if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+                dy = -dy;
+                upPressed = !upPressed;
+                downPressed = !downPressed;
+            }
+
+            engellerHareket();
+            checkWin();
+        }
+        function checkLoss() {
+            for(var i = 0; i < engeller.length; i++) {
+                if(x + ballRadius > engeller[i].x && x - ballRadius < engeller[i].x + obstacleWidth &&
+                y + ballRadius > engeller[i].y && y - ballRadius < engeller[i].y + obstacleHeight) {
+                    alert("Oyunu kaybettiniz!");
+                    return;
+                }
+            }   
+        }
+
+        function closePopup() {
+            window.close();
+        }
+
+
+    </script>
+    
+
+    <style>
+        #myText {
+        position: absolute;
+        top: 100px;
+        left: 900px;
+        font-size: 24px;
+        color: red;
+      }
+      </style>
+      <div id="myText">OYUNUN OYNANIŞI
+        <p>Mavi çizgilerden ve mavi toplardan uzak durmalısın.</p> 
+        <p>Yukarıya hareket için aşağı ok, aşağı hareket için yukarı ok kullan.</p>
+        <p>Sağa ve sola hareket için de sağ sol oklarını kullan.</p>
+        <p>Belirli bir süreyi geçersen kazanırsın.</p>
+    </div>
+  </body>
+</html>

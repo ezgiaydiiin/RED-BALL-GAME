@@ -6,3 +6,5 @@ The point of this game is that you should avoid blue balls and blue borders to w
 
 If you'd like to play here's the link: http://ezgiaydin.orgfree.com/
 
+If you'd like to see my YouTube video about my game here's the link:https://youtu.be/G0z438jTYoQ
+
